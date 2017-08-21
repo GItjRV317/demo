@@ -52,20 +52,6 @@ h1{
   color: #ff6961;
   display: inline-block;
 }
-.menu{
-  position: relative;
-  left: 62.5%;
-  top: 10px;
-  font-family: 'BenchNine', sans-serif;
-  display: inline-block;
-  list-style: none;
-  min-width: 15%;
-  max-width: 60%;
-}
-.menu li{
-  display: inline;
-  padding-right: 2%;
-}
 .siding li{
   padding-top: 3.5%;
 }
@@ -74,31 +60,26 @@ h1{
   display: block;
   font-family: 'BenchNine', sans-serif;
   color: #ffffff;
-  padding-top: 2%;
+  top: 40px;
   max-width: 35em;
 }
 a{
   text-decoration: none;
+  cursor: pointer;
 }
-.menu a:hover{
+a:hover{
   text-decoration: underline;
-  color: #adc6ff;
+  color: #ffc16a;
 }
-.menu a::before{
-  color: #9cb5ef;
+a::before{
+  color: #ffb347;
 }
-.menu a:visited{
-  color: #7a93bd;
-}
-.project_folder a::before{
-  color: #777;
-}
-.project_folder a:visited{
-  color: #666;
+a:visited{
+  color: #F0971A;
 }
 .project_folder a:hover{
-  color: #FF6D10;
   text-shadow: 1.15px 1px #555;
+  text-decoration: none;
 }
 @media only screen and (max-width: 1079px){
   .project_folder{
