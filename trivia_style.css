@@ -1,0 +1,88 @@
+body{
+  background:
+  linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,
+  linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px,
+  linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px,
+  linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,
+  linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
+  linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+  background-color: #131313;
+  background-size: 20px 20px;
+}
+#container{
+  background: #000000;
+  background: linear-gradient(-45 deg, rgba(0, 0, 0, 0), rgba(10, 10, 10, 0));
+  position:absolute;
+  border-radius: 0px 0px 70px 0px;
+  top:0;
+  bottom: 0;
+  left:0;
+  width: 91%;
+}
+.reference{
+  background-color: #fad201;
+  border-top: 4px double #000000;
+  border-bottom: 4px double #000000;
+  font-family: 'Pacifico', cursive;
+  color: #000000;
+  font-size: 18px;
+}
+#margin_set{
+  position:relative;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  height: 50%;
+}
+h1{
+  font-size: 30px;
+  font-family: 'Pacifico', cursive;
+  color: #fad201
+}
+#content{
+  font-size: 25px;
+  font-family: 'Rubik Mono One', cursive;
+  color: #fad201;
+}
+button{
+  display:inline-block;
+  margin-right: 15px;
+  margin-top: 15px;
+  line-height: 25px;
+  height: 55px;
+  border: none;
+  border-radius: 15px;
+  background-color: #fad201;
+  position: relative;
+  outline: none;
+  font-family: 'Fjalla One', cursive;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #000000;
+  cursor: pointer;
+}
+li{
+  list-style-type: none;
+  display: inline-block;
+  padding-right: 2.5%;
+}
+a:visited{
+  color: #212121;
+  text-decoration: none;
+}
+a:hover{
+  text-decoration: underline;
+  color: #000000;
+}
+a{
+  text-decoration: none;
+}
+@media only screen and (max-width: 1079px){
+  #container{
+    width: 100%;
+    border-radius: 0px;
+  }
+}

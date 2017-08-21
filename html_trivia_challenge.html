@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<link href="https://fonts.googleapis.com/css?family=Bahiana|Fjalla+One|Pacifico|Roboto+Condensed|Rubik+Mono+One" rel="stylesheet">
+		<title>Trivia Challenge</title>
+		<script src="jquery-3.2.1.min.js"></script>
+		<style type="text/css"></style>
+		<link rel="stylesheet" type="text/css" href="trivia_style.css">
+	</head>
+	<body>
+		<div id="container">
+			<ul class="reference">
+				<li><a href="Programming_hub.html">Programming Central</a></li>
+				<li>How does this work?</li>
+			</ul>
+		<div id="margin_set">
+			<h1>HTML Trivia Rumble</h1>
+			<p id="content">Ready to start? Trivia will appear here</p>
+			<button class ="questGen">Next Question!</button>
+			<button class="ansGen">Next Answer!</button>
+			<script type="text/javascript">
+				var dataset = [
+					{quest: "What is the capital city of Australia?", Answer: "Canberra"},
+					{quest: "Which item of women’s clothing is named after a Pacific Island?", Answer: "Bikini (Bikini Island is part of Bikini Atoll)"},
+					{quest: "On which island is the holiday resort of Kuta?", Answer: "Bali"},
+					{quest: "Which word means ‘journey’ in Swahili and has come to mean an overland expedition?", Answer: "Safari."},
+					{quest: "The name of which Mexican food means ‘little donkey’ because it looks like a donkey’s ear?", Answer: "A burrito (in spanish, a donkey is a burro)"},
+					{quest: "Where in Egypt can the three largest and best-preserved pyramids be found?", Answer: "Giza"},
+					{quest: "In which European city is the Rijksmuseum?", Answer: "Amsterdam"},
+					{quest: "Which colour is the Sikh holy temple found in Amritsar, India?", Answer: "Golden"},
+					{quest: "The Amazon Rainforest is NOT in which of the following countries: Peru, Bolivia, or Costa Rica?", Answer: "Costa Rica"},
+					{quest: "In how many countries does the Eurostar terminate?", Answer: "Three (England, France and Belgium)"},
+					{quest: "What name is used to describe the indigenous people of New Zealand?", Answer: "Maori"},
+					{quest: "Which is the world’s highest capital city?", Answer: "La Paz, Bolivia"},
+					{quest: "In which city would you be able to view the Mona Lisa?", Answer: "Paris"},
+					{quest: "In which country is there a custom called Giri Choco meaning ‘duty chocolate’, which involves giving chocolates to your boss?", Answer: "Japan"},
+					{quest: "Which US city is home to the Red Sox baseball team?", Answer: "Boston"},
+					{quest: "Where is the world’s tallest building?", Answer: "Dubai (the 828m-high Burj Khalifa)"},
+					{quest: "Which of the following Australian landmarks is in the state of New South Wales: Great Barrier Reef, Uluru, Sydney Harbour Bridge?", Answer: "Sydney Harbour Bridge"},
+					{quest: "How have scientists bred cats that glow in the dark?", Answer: "By modifying their genes"},
+					{quest: "Name a metal that is liquid at room temperature, and shares its name with a small planet and a Roman god", Answer: "Mercury"},
+					{quest: "In which country is the Taj Mahal located?", Answer: "India"},
+					{quest: "What physicist created the Theory of Relativity (E=mc2)?", Answer: "Albert Einstein"},
+					{quest: "Who was the first human in space?", Answer: "Yuri Gagarin"},
+					{quest: "What three atomic particles make up an atom?", Answer: "Protons, neutrons, and electrons"},
+					{quest: "What was the name of the English civil war during the 15th century?", Answer: "The War of the Roses"},
+					{quest: "Who was the first woman to fly solo across the Atlantic Ocean?", Answer: "Amelia Earhart"},
+					{quest: "Which famous classical composer was deaf?", Answer: "Beethoven"},
+					{quest: "Where was the ancient philosopher Confucius born?", Answer: "China"},
+					{quest: "What is the name of the disease that wiped out half the population of Europe and was spread by rat fleas?", Answer: "The Black Death"},
+					{quest: "What US naval base was attacked by Japan during WWII?", Answer: "Pearl Harbor"},
+					{quest: "Which philosopher tutored Alexander the Great?", Answer: "Aristotle"},
+					{quest: "Dracula is based on which historic prince, who executed his enemies on wooden stakes?", Answer: "Vlad the Impaler"},
+					{quest: "Who was the first president of the United States?", Answer: "George Washington"},
+					{quest: "What group of ancient peoples sailed in longships, loved fighting and feasting, and were the scourge of Northern Europe?", Answer: "The Vikings"},
+					{quest: "What makes leaves green?", Answer: "Chlorophyll"},
+					{quest: "Where is blood made?", Answer: "Bone marrow"},
+					{quest: "In the Middle Ages, which animals were often used by doctors?", Answer: "Leeches"},
+					{quest: "What animal is used by modern hospitals to clean possibly infected wounds of dead tissue?", Answer: "Maggots"},
+					{quest: "What is the ring of water around a castle called?", Answer: "A moat"},
+					{quest: "Which 16th century playwright wrote Romeo and Juliet?", Answer: "Shakespeare"},
+					{quest: "What scientific discovery was inspired by an apple falling from a tree?", Answer: "Gravity"},
+					{quest: "What is the most common element in the universe?", Answer: "Hydrogen"},
+					{quest: "What is the most reactive element in the periodic table?", Answer: "Fluorine or Caesium"},
+					{quest: "What is the world’s longest railway, which runs across all of Russia?", Answer: "Trans-Siberian Railway"},
+					{quest: "The Sphinx is a statue that guards what historic place?", Answer: "The pyramids of Giza"},
+					{quest: "In the Battle of Thermopylae, which army fought to the death against a Persian army 100 times its size?", Answer: "Spartan"},
+					{quest: "Who painted the Mona Lisa?", Answer: "Leonardo da Vinci"},
+					{quest: "Would water boil more quickly or more slowly at the top of Mount Everest under the same amount of heat?", Answer: "More quickly"},
+					{quest: "What is the name of the device that splits visible light into all of its frequencies?", Answer: "A prism"},
+					{quest: "What is the biggest organ in the human body?", Answer: "The skin"},
+				];
+				var currentQuestion;
+				$('.questGen').click(function(){
+					var keyNumber = Math.floor(Math.random() * (dataset.length));
+					currentQuestion = dataset[keyNumber];
+					$('#content').text(currentQuestion.quest);
+				});
+				$('.ansGen').click(function(){
+					$('#content').empty();
+					$('#content').text(currentQuestion.Answer);
+				});
+		</script>
+	</div>
+	</div>
+	</body>
+</html>

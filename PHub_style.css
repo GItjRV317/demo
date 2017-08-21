@@ -1,0 +1,120 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+head{
+  visibility: hidden;
+}
+#content{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow-y: scroll;
+  background-color: #232323;
+}
+#main_container{
+  display: block;
+  position: absolute;
+  left: 18.5%;
+}
+.project_folder{
+  position: fixed;
+  left: 0%;
+  width: 15%;
+  display: inline;
+  color: #777;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 15px;
+  background-color: #1b1b1b;
+  height: 100%;
+  overflow: hidden;
+}
+.project_folder li{
+  padding-top: 5%;
+  padding-left: 3%;
+}
+.siding{
+  position: fixed;
+  left: 16%;
+  max-width: 2.5%;
+  display: inline;
+  overflow-y: hidden;
+  color: #777;
+  font-family: 'BenchNine', sans-serif;
+}
+h1{
+  position: absolute;
+  left: 0%;
+  top: 12.2px;
+  text-align: left;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 18px;
+  color: #ff6961;
+  display: inline-block;
+}
+.menu{
+  position: relative;
+  left: 62.5%;
+  top: 10px;
+  font-family: 'BenchNine', sans-serif;
+  display: inline-block;
+  list-style: none;
+  min-width: 15%;
+  max-width: 60%;
+}
+.menu li{
+  display: inline;
+  padding-right: 2%;
+}
+.siding li{
+  padding-top: 3.5%;
+}
+#intro_text{
+  position: relative;
+  display: block;
+  font-family: 'BenchNine', sans-serif;
+  color: #ffffff;
+  padding-top: 2%;
+  max-width: 35em;
+}
+a{
+  text-decoration: none;
+}
+.menu a:hover{
+  text-decoration: underline;
+  color: #adc6ff;
+}
+.menu a::before{
+  color: #9cb5ef;
+}
+.menu a:visited{
+  color: #7a93bd;
+}
+.project_folder a::before{
+  color: #777;
+}
+.project_folder a:visited{
+  color: #666;
+}
+.project_folder a:hover{
+  color: #FF6D10;
+  text-shadow: 1.15px 1px #555;
+}
+@media only screen and (max-width: 1079px){
+  .project_folder{
+    visibility: hidden;
+  }
+  #main_container{
+    left: 5%;
+  }
+  .siding{
+    left: 1.5%;
+  }
+  h1{
+    position: absolute;
+    display: block;
+  }
+  #intro_text{
+    position: relative;
+  }
+}
