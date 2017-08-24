@@ -5,7 +5,6 @@
 		<link href="https://fonts.googleapis.com/css?family=Fjalla+One|Pacifico|Rubik+Mono+One" rel="stylesheet">
 		<title>Trivia Challenge</title>
 		<script src="jquery-3.2.1.min.js"></script>
-		<style type="text/css"></style>
 		<link rel="stylesheet" type="text/css" href="trivia_style.css">
 	</head>
 	<body>
@@ -13,12 +12,21 @@
 			<ul class="reference">
 				<li><a href="Programming_hub.html">Programming Central</a></li>
 			</ul>
-		<div id="margin_set">
-			<h1>HTML Trivia Rumble</h1>
-			<p id="content">Ready to start? Trivia will appear here</p>
-			<button class ="questGen">Next Question!</button>
-			<button class="ansGen">Next Answer!</button>
-			<script type="text/javascript">
+			<div id="quiz_shell">
+				<button class="quizMenu">More Quizzes Here!</button>
+				<div id="quizMenu">
+					<button class="data1">Default Quiz</button>
+					<button class="dataCMD">Command Line Quiz</button>
+				</div>
+			</div>
+			<div id="margin_set">
+				<h1>HTML Trivia Rumble</h1>
+				<p id="content">Ready to start? Trivia will appear here</p>
+				<button class="questGen">Next Question!</button>
+				<button class="ansGen">Next Answer!</button>
+			</div>
+		</div>
+		<script type="text/javascript">
 				var dataset = [
 					{quest: "What is Australia's capital city?", Answer: "Canberra"},
 					{quest: "Which item of women’s clothing is named for a Pacific Island?", Answer: "Bikini (the Bikini Island is part of Bikini Atoll)"},
@@ -32,6 +40,30 @@
 					{quest: "What is the collective name for the indigenous people of New Zealand?", Answer: "Maori"},
 					{quest: "What is the capital city of Brazil?", Answer: "Brasilia"},
 				];
+				var data1 = [
+				  {quest: "What is Australia's capital city?", Answer: "Canberra"},
+				  {quest: "Which item of women’s clothing is named for a Pacific Island?", Answer: "Bikini (the Bikini Island is part of Bikini Atoll)"},
+				  {quest: "Which island contains the holiday resort of Kuta?", Answer: "Bali"},
+				  {quest: "Which word means ‘journey’ in Swahili and has come to be used for overland expeditions?", Answer: "Safari."},
+				  {quest: "The name of which Mexican food means ‘little donkey’ because of it's similarity to a donkey’s ear?", Answer: "A burrito (burro is donkey in Spanish)"},
+				  {quest: "Where in Egypt can the three largest, best-preserved, and most famous pyramids be found?", Answer: "Giza"},
+				  {quest: "Which European city is home to the Rijksmuseum?", Answer: "Amsterdam"},
+				  {quest: "What is the most prominent colour of the Sikh holy temple found in Amritsar, India?", Answer: "Golden"},
+				  {quest: "The Amazon Rainforest is NOT to be found in which of the following countries: Peru, Bolivia, or Costa Rica?", Answer: "Costa Rica"},
+				  {quest: "What is the collective name for the indigenous people of New Zealand?", Answer: "Maori"},
+				  {quest: "What is the capital city of Brazil?", Answer: "Brasilia"},
+				]
+				var dataCMD = [
+				  {quest: "What is the significance of the '$' symbol in command line?", Answer: "The $ is the shell prompt, which shows the terminal is ready to recieve a command."},
+				  {quest: "What does the ls command do?", Answer: "Lists files in current directory."},
+				  {quest: "What does the pwd command do?", Answer: "Prints working directory (current address of command terminal)."},
+				  {quest: "What is the difference between 'cd' and 'cd ..' in command line?", Answer: "The cd command can be used to change to a target directory. 'cd ..' is a shortcut to move one directory up."},
+				  {quest: "What does 'touch <input name>' do in command line?", Answer: "It creates a file of a desired name in the current directory."},
+				  {quest: "What is the primary function of the 'mv' command?", Answer: "Moving specified files to new locations."},
+				  {quest: "What is the primary function of the 'rm' command?", Answer: "Removing specified files from current working drive."},
+				  {quest: "What does the 'wc' command do?", Answer: "Outputs number of lines, words, and characters to terminal."},
+				  {quest: "What does the 'cp' command do?", Answer: "Copies a target file to a new location."},
+				]
 				var currentQuestion;
 				$('.questGen').click(function(){
 					var keyNumber = Math.floor(Math.random() * (dataset.length));
@@ -42,8 +74,28 @@
 					$('#content').empty();
 					$('#content').text(currentQuestion.Answer);
 				});
+				$('.quizMenu').click(function(){
+				  if($('#quizMenu').css('visibility') == 'hidden'){
+				    $('#quizMenu').css('visibility', 'visible');
+				    $('.quizMenu').text("Collapse Menu");
+				  }
+				  else{
+				    $('#quizMenu').css('visibility', 'hidden');
+				    $('.quizMenu').text("More Quizzes Here!");
+				  }
+				});
+				$('.data1').click(function(){
+				  $('#content').empty();
+				  $('#content').text("Are you ready to start the default quiz? Click next question to start!");
+				  dataset.length = 0;
+				  dataset = data1;
+				});
+				$('.dataCMD').click(function(){
+				  $('#content').empty();
+				  $('#content').text("Are you ready to start the quiz on the CMD line? Click next question to start!");
+				  dataset.length = 0;
+				  dataset = dataCMD;
+				});
 		</script>
-	</div>
-	</div>
 	</body>
 </html>
