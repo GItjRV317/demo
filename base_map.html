@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Chloropleth US pop 2015</title>
+		<script type="text/javascript" src="../d3.js"></script>
+		<link rel="stylesheet" type="text/css" href="base_map.css">
+		<link href="https://fonts.googleapis.com/css?family=BenchNine|Iceland" rel="stylesheet">
+	</head>
+	<body>
+		<ul class="siteLinks">
+			<li><a href="index.html">Welcome Splash</a></li>
+		</ul>
+		<h1>US Population from US 2015 Census Data</h1>
+		<div id="mapBody"></div>
+		<div id="legendText"><p>Inc. Population</p></div>
+		<div id="mapLegend"></div>
+		<div id="textContent">
+			<h2>The Base Map</h2>
+			<ul>
+				<li class="prime">Sources:</li>
+				<li><a href="https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json">US States json</a></li>
+				<li><a href="http://population.us/states">US 2015 Population</a></li>
+			</ul>
+			<p>In what I <i>hope</i> to be one of the longer breaks between updates, I have finally wrapped my head around creating what I would consider to be the base map for a d3.js visualization. A base map would consist of a minimum of 3 parts: a map of the geographic area, data bound to said area, and a way to visualize that data for the viewer. The delays in posting this update were due to a few complications brought about by a lack of coding knowledge, and a few methods I wanted to improve upon.</p>
+			<h3>The Importance of Leading 0s</h3>
+			<p>Let's begin with the lack of knowledge. Assuming you are familiar enough to understand the basics of d3, I had a great deal of trouble parsing my <a href="https://en.wikipedia.org/wiki/Comma-separated_values">.csv</a> data with the <a href="https://github.com/d3/d3-scale/blob/master/README.md#quantize-scales">scaleQuantize()</a> method. If you're looking under the hood, you can see that this is the method currently in use. However, for a period of about three weeks, I couldn't get a result other than <a href="https://imgur.com/10Wjukh">this</a> from running the code. As you can see from the picture, the values for population are returned in console. So what was the problem? Let's look at a few rows from the <i>first</i> version of my csv file.</p>
+			<table>
+				<tr>
+					<th>State</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>Alabama</td>
+					<td class="borderLeft">4858979</td>
+				</tr>
+				<tr>
+					<td>Alaska</td>
+					<td class="borderLeft">738432</td>
+				</tr>
+				<tr>
+					<td>Arkansas</td>
+					<td class="borderLeft">2978204</td>
+				</tr>
+				<tr>
+					<td>Arizona</td>
+					<td class="borderLeft">6828065</td>
+				</tr>
+				<tr>
+					<td>California</td>
+					<td class="borderLeft">39144818</td>
+				</tr>
+			</table>
+			<p>As a human, those numbers are not very difficult to read. However, machines can be very insistent on their grammar. In this case, the difference being that "4858979", "738432", "39144818" have different numbers of digits (7, 6, and 8 respectively). Though I'm not a software engineer (and especially not an expert on d3.js) the results of the first map seem to be boolean (either a true or false state, or maybe in this case a "0" or "1" for color input). The method used to turn these results back to intergers was <a href="https://support.clever.com/hc/en-us/articles/218518698-How-do-I-troubleshoot-CSV-formatting-errors-">leading zeroes</a>. Here's what the csv file looks like now.</p>
+			<table>
+				<tr>
+					<th>State</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>Alabama</td>
+					<td class="borderLeft">04858979</td>
+				</tr>
+				<tr>
+					<td>Alaska</td>
+					<td class="borderLeft">00738432</td>
+				</tr>
+				<tr>
+					<td>Arkansas</td>
+					<td class="borderLeft">02978204</td>
+				</tr>
+				<tr>
+					<td>Arizona</td>
+					<td class="borderLeft">06828065</td>
+				</tr>
+				<tr>
+					<td>California</td>
+					<td class="borderLeft">39144818</td>
+				</tr>
+			</table>
+			<h3>Other Methods</h3>
+			<p>There were two methods I wanted to improve before I started posting my maps. The first was getting away from <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)">callback code</a>, which is <a href="https://bl.ocks.org/mbostock/aaa69d969b714ecb05bac01e2a29dd41">very</a> <a href="https://bl.ocks.org/mbostock/2dd741099154a4da55a7db31fd96a892">commonly</a> <a href="https://bl.ocks.org/mbostock/ad2d520dd26dcc5af13b">used</a> in d3 code. Granted, the examples I just linked were written by the creator and most prolific author of d3, Mike Bostock, and they're proof that the callback structure is perfectly useable. However, with every new data source you introduce to your visualization you then have another callback to keep track of, and code can get very messy very quickly that way. To get away from the callback structure, I used js <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promise</a> functions to preload my data.</p>
+			<p class="final">The second method I wanted to improve with my d3 coding was finding a way to use <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries">media queries</a> with my d3. It's not a large accomplishment by any means, but it is one I worked at all the same. If you're curious what parts of my code achieve this, look to the parts of my code that use <a href="https://github.com/d3/d3-geo">fitExtent</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox">viewBox</a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio">preserveAspectRatio</a>.</p>
+		</div>
+		<script type="text/javascript">
+			//call all data for d3 viz
+			getAllData()
+				.then((data) => {
+					//tells the page that after we are done getting data, run function main() with data collected
+					main(data)
+				})
+			//here we write our "main" function, which executes AFTER the Promise method has collected all data
+			function main(data){
+				//in this example, we claim data by order collected. as a reminder, counting starts with 0, not 1
+				var myGeoData = data[0];
+				//as our attribute data was the second dataset collected, we must call that second
+				var myAttrData = data[1];
+				//check to make sure data has loaded successfully
+				console.log("my Geo data:", myGeoData)
+				console.log("my Attr data:", myAttrData)
+				//set witdh and height variables. not specifically needed in this example, but good practice
+				var w = "100%";
+				var h = "100%";
+				//set projection method. necessary for every visualization
+				var projection = d3.geoAlbersUsa().fitExtent([[10, 10],[1000, 600]], myGeoData);
+				//set pathing method. dependant on projection for map visualizations. necessary for every visualization.
+				var path = d3.geoPath().projection(projection);
+				//set color scale. not strictly necessary for map functionality, but necessary to show data.
+				var color = d3.scaleQuantize().range(["rgb(255,247,251)", "rgb(236,231,242)", "rgb(208,209,230)", "rgb(166,189,219)", "rgb(116,169,207)", "rgb(54,144,192)", "rgb(5,112,176)", "rgb(4,90,141)", "rgb(2,56,88)"]);
+				//using our js method below, bind our geo and attribute data together and set it to a variable
+				var Data = bindGeoData(myAttrData, myGeoData);
+				console.log("my bound Data:", Data)
+				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h).attr("viewBox", "0 0 1000 600").attr("preserveAspectRatio", "xMidYMin meet");
+				//set up the domain for our color scale using the bound geo and attribute data.
+				color.domain([
+					d3.min(Data, function(d){return d.properties.population;}),
+					d3.max(Data, function(d){return d.properties.population;})
+				]);
+				//with everything set up, now we project our map!
+				svg.selectAll("path")
+				.data(Data)
+				.enter()
+				.append("path")
+				.attr("stroke", "#333")
+				.attr("d", path)
+				.style("fill", function(d){
+					var value = d.properties.population;
+					console.log("My value:", value);
+					if(value){
+						return color(value);
+						console.log("My color:", color(value));
+					}else{
+						return "#000";
+					}
+					//now it's time to set up the legend. there are several steps, starting with calling a defs function as we define the gradient for our legend
+					//to begin, we must set up the svg variable for the legend
+
+				});
+				var legend = d3.select("#mapLegend").append("svg").attr("width", w).attr("height", h).attr("viewBox", "0 0 300 15");
+				//append a liner gradient element to the defs and give it a unique id
+				legend.append("linearGradient").attr("id", "legendGradient")
+				.attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%")
+				.selectAll("stop")
+				.data([
+					{offset: "0%", color: "rgb(255,247,251)"},
+					{offset: "12.5%", color: "rgb(236,231,242)"},
+					{offset: "25%", color: "rgb(208,209,230)"},
+					{offset: "37.5%", color: "rgb(166,189,219)"},
+					{offset: "50%", color: "rgb(116,169,207)"},
+					{offset: "62.5%", color: "rgb(54,144,192)"},
+					{offset: "75%", color: "rgb(5,112,176)"},
+					{offset: "87.5", color: "rgb(4,90,141)"},
+					{offset: "100%", color: "rgb(2,56,88)"}
+				])
+				.enter().append("stop")
+				.attr("offset", function(d){return d.offset;})
+				.attr("stop-color", function(d){return d.color;});
+				//now to create our legend
+				legend.append("rect").attr("width", w).attr("height", h).attr("fill", "url(#legendGradient)").attr("stroke", "#333");
+				//js method to bind our geo data to our attribute data. whatever passes through this function will be named ds and geo
+				function bindGeoData(ds, geo){
+					ds.map((ds) => {
+						geo.features.map((g) => {
+							var s = g.properties.name;
+							if (s == ds.state){
+								g.properties.population = ds.value;
+							}
+						})
+					})
+					return geo.features;
+				}
+			}
+			//create function for retrieving data via async Promise method
+			function getAllData(){
+				//create Promise method for gathering geo data
+				var geoDataLoaded = new Promise((resolve, reject) => {
+					d3.json("us-states.json", (data) => {
+						resolve (data)
+					})
+				})
+				//create Promise method for gathering csv data
+				var attrDataLoaded = new Promise((resolve, reject) => {
+					d3.csv("us-state-pop-2015.csv", (data) => {
+						resolve (data)
+					})
+				})
+				//create Promise method that waits for other promise functions to clear
+				return Promise.all([geoDataLoaded, attrDataLoaded])
+			}
+		</script>
+	</body>
+</html>

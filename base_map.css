@@ -1,0 +1,136 @@
+*{
+  margin: 0;
+  padding: 0;
+  font-family: 'BenchNine', sans-serif;
+}
+html, body{
+  height: 100%;
+}
+h1, #mapLegend, #legendText{
+  position: absolute;
+  left: 400px;
+}
+h2, h3, #textContent ul, #textContent p, #textContent table{
+  position:relative;
+  left: 15px;
+}
+h2, h3{
+  color: #9a2617;
+}
+h1{
+  top: 25px;
+  text-decoration: underline;
+}
+#mapBody{
+  position: absolute;
+  top: 45px;
+  left: 120px;
+  width: 800px;
+  height: 480px;
+}
+#legendText{
+  top: 550px;
+}
+#mapLegend{
+  display: block;
+  top: 570px;
+  width: 300px;
+  height: 15px;
+}
+#textContent{
+  position: absolute;
+  left: 300px;
+  top: 600px;
+  width: 550px;
+  min-height: calc(100% - 600px);
+  background-color: rgba(195, 195, 195, 0.1);
+  border: 1px solid #87ceeb;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+h2{
+  top: 15px;
+  font-size: 20px;
+  text-decoration: underline;
+}
+ul{
+  list-style: none;
+  font-size: 14px;
+}
+h3{
+  font-size: 16px;
+}
+a,a:visited{
+  font-weight: bold;
+  text-decoration: none;
+  color: #009bff;
+}
+a:hover{
+  text-decoration: underline;
+}
+#textContent p{
+  margin-top: 15px;
+  max-width: 520px;
+}
+#textContent table{
+  text-align: left;
+  border: 1px solid #333;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+#textContent td{
+  padding-left: 2px;
+  border-top: 1px solid #333;
+}
+.siteLinks{
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 1000px;
+  height: 25px;
+  background-color: rgba(195, 195, 195, 0.1);
+  border: 1px solid #87ceeb;
+  border-bottom-right-radius: 12px;
+}
+.siteLinks li{
+  font-size: 17px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 2.5%;
+}
+.prime{
+  margin-top: 10px;
+  font-size: 17px;
+  font-weight: bold;
+}
+.borderLeft{
+  border-left: 1px solid #333;
+  font-family: 'Iceland', cursive;
+}
+.final{
+  margin-bottom: 10px;
+}
+@media only screen and (max-width: 1079px){
+  h1, #mapLegend, #legendText{
+    left: 300px;
+  }
+  #mapBody{
+    width: 700;
+    height: 420;
+    left: 20px;
+  }
+  #legendText{
+    top: 490px;
+  }
+  #mapLegend{
+    top: 510;
+  }
+  #textContent{
+    left: 200px;
+    top: 540px;
+    min-height: calc(100% - 540px);
+  }
+  .siteLinks{
+    width: 700px;
+  }
+}
