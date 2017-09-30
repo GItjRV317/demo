@@ -112,25 +112,52 @@ a:hover{
 }
 @media only screen and (max-width: 1079px){
   h1, #mapLegend, #legendText{
-    left: 300px;
+    left: 250px;
   }
   #mapBody{
-    width: 700;
-    height: 420;
+    width: 700px;
+    height: 420px;
     left: 20px;
   }
   #legendText{
     top: 490px;
   }
   #mapLegend{
-    top: 510;
+    top: 510px;
   }
   #textContent{
-    left: 200px;
+    left: 125px;
     top: 540px;
     min-height: calc(100% - 540px);
   }
   .siteLinks{
     width: 700px;
+  }
+}
+@media only screen and (max-width: 720px){
+  h1, #mapLegend, #legendText{
+    left: 155px;
+  }
+  h1{
+    font-size: 25px;
+  }
+  #mapBody{
+    width: 500px;
+    height: 300px;
+    left: 20px;
+  }
+  #legendText{
+    top: 370px;
+  }
+  #mapLegend{
+    top: 390px;
+  }
+  #textContent{
+    left: 50px;
+    top: 420px;
+    min-height: calc(100% - 420px);
+  }
+  .siteLinks{
+    width: 500px;
   }
 }

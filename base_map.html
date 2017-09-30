@@ -101,41 +101,60 @@
 				//set witdh and height variables. not specifically needed in this example, but good practice
 				var w = "100%";
 				var h = "100%";
-				//set projection method. necessary for every visualization
-				var projection = d3.geoAlbersUsa().fitExtent([[10, 10],[1000, 600]], myGeoData);
-				//set pathing method. dependant on projection for map visualizations. necessary for every visualization.
-				var path = d3.geoPath().projection(projection);
 				//set color scale. not strictly necessary for map functionality, but necessary to show data.
 				var color = d3.scaleQuantize().range(["rgb(255,247,251)", "rgb(236,231,242)", "rgb(208,209,230)", "rgb(166,189,219)", "rgb(116,169,207)", "rgb(54,144,192)", "rgb(5,112,176)", "rgb(4,90,141)", "rgb(2,56,88)"]);
 				//using our js method below, bind our geo and attribute data together and set it to a variable
 				var Data = bindGeoData(myAttrData, myGeoData);
 				console.log("my bound Data:", Data)
-				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h).attr("viewBox", "0 0 1000 600").attr("preserveAspectRatio", "xMidYMin meet");
+				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h);
 				//set up the domain for our color scale using the bound geo and attribute data.
 				color.domain([
 					d3.min(Data, function(d){return d.properties.population;}),
 					d3.max(Data, function(d){return d.properties.population;})
 				]);
-				//with everything set up, now we project our map!
-				svg.selectAll("path")
-				.data(Data)
-				.enter()
-				.append("path")
-				.attr("stroke", "#333")
-				.attr("d", path)
-				.style("fill", function(d){
-					var value = d.properties.population;
-					console.log("My value:", value);
-					if(value){
-						return color(value);
-						console.log("My color:", color(value));
-					}else{
-						return "#000";
-					}
-					//now it's time to set up the legend. there are several steps, starting with calling a defs function as we define the gradient for our legend
-					//to begin, we must set up the svg variable for the legend
+				var mymap = document.getElementById("mapBody");
+				var bounds = mymap.getBoundingClientRect();
+				render(bounds.width, bounds.height);
+				function render(width, height){
+					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
+					var path = d3.geoPath().projection(projection);
+					var d =svg.selectAll("path").data(Data);
+					d.attr("stroke", "#333")
+					.attr("d", path)
+					.style("fill", function(d){
+						var value = d.properties.population;
+						console.log("My value:", value);
+						if(value){
+							return color(value);
+							console.log("My color:", color(value));
+						}else{
+							return "#000";
+						}
+						});
 
-				});
+					d.enter()
+					.append("path")
+					.attr("stroke", "#333")
+					.attr("d", path)
+					.style("fill", function(d){
+						var value = d.properties.population;
+						console.log("My value:", value);
+						if(value){
+							return color(value);
+							console.log("My color:", color(value));
+						}else{
+							return "#000";
+						}
+						});
+				}
+				window.addEventListener("resize", onResize);
+				function onResize(){
+					var mymap = document.getElementById("mapBody");
+					var bounds = mymap.getBoundingClientRect();
+					render(bounds.width, bounds.height);
+				}
+				//now it's time to set up the legend. there are several steps, starting with calling a defs function as we define the gradient for our legend
+				//to begin, we must set up the svg variable for the legend
 				var legend = d3.select("#mapLegend").append("svg").attr("width", w).attr("height", h).attr("viewBox", "0 0 300 15");
 				//append a liner gradient element to the defs and give it a unique id
 				legend.append("linearGradient").attr("id", "legendGradient")
