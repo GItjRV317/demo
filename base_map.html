@@ -80,7 +80,7 @@
 			</table>
 			<h3>Other Methods</h3>
 			<p>There were two methods I wanted to improve before I started posting my maps. The first was getting away from <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)">callback code</a>, which is <a href="https://bl.ocks.org/mbostock/aaa69d969b714ecb05bac01e2a29dd41">very</a> <a href="https://bl.ocks.org/mbostock/2dd741099154a4da55a7db31fd96a892">commonly</a> <a href="https://bl.ocks.org/mbostock/ad2d520dd26dcc5af13b">used</a> in d3 code. Granted, the examples I just linked were written by the creator and most prolific author of d3, Mike Bostock, and they're proof that the callback structure is perfectly useable. However, with every new data source you introduce to your visualization you then have another callback to keep track of, and code can get very messy very quickly that way. To get away from the callback structure, I used js <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promise</a> functions to preload my data.</p>
-			<p class="final">The second method I wanted to improve with my d3 coding was finding a way to use <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries">media queries</a> with my d3. It's not a large accomplishment by any means, but it is one I worked at all the same. If you're curious what parts of my code achieve this, look to the parts of my code that use <a href="https://github.com/d3/d3-geo">fitExtent</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox">viewBox</a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio">preserveAspectRatio</a>.</p>
+			<p class="final">The second method I wanted to improve with my d3 coding was finding a way to use <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Using_media_queries">media queries</a> with my d3. To achieve this I used Javascript to look for a window resize, like one that would be triggered by media query, and then redraw the map completely. Those portions of the code have been annotated, so take a look at the code if you want the full details!</p>
 		</div>
 		<script type="text/javascript">
 			//call all data for d3 viz
@@ -112,26 +112,27 @@
 					d3.min(Data, function(d){return d.properties.population;}),
 					d3.max(Data, function(d){return d.properties.population;})
 				]);
+				//HERE IS THE START OF THE MAP REDRAW/RESIZE FUNCTION.
+				//start by using js to grab our mapBody element and assess the size.
 				var mymap = document.getElementById("mapBody");
 				var bounds = mymap.getBoundingClientRect();
+				//function takes the width and height of #mapBody as arguments, very easy for resizing.
+				//if we want the map to redraw, the first step we have to do is put the map inside a function that triggers automatically.
 				render(bounds.width, bounds.height);
 				function render(width, height){
+					//establish all our d3 values as per normal.
+					//since the projection is going to require our width and height as arguments, the variable must be created here,
+					//as must all variables that depend on it
 					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
 					var path = d3.geoPath().projection(projection);
 					var d =svg.selectAll("path").data(Data);
-					d.attr("stroke", "#333")
-					.attr("d", path)
-					.style("fill", function(d){
-						var value = d.properties.population;
-						console.log("My value:", value);
-						if(value){
-							return color(value);
-							console.log("My color:", color(value));
-						}else{
-							return "#000";
-						}
-						});
-
+					//possibly the most unnecessary part of our function in practical terms, but removing the svg before you redraw it
+					//can prevent cache buildup. just a good coding habit for anything you want to iterate more than once on a page.
+					svg.selectAll("mapBody").remove();
+					//this first instance of code isn't important in the initial draw. it updates the path info for the redraw.
+					//you can experiment with removing the code to get some pretty weird maps on resize.
+					d.attr("d", path);
+					//okay, so here is where we draw the map as per normal.
 					d.enter()
 					.append("path")
 					.attr("stroke", "#333")
@@ -147,6 +148,8 @@
 						}
 						});
 				}
+				//BELOW IS THE LAST PART OF THE RESIZE FUNCTION
+				//here we get the js to listen for a window resize, and then iterate the map function again.
 				window.addEventListener("resize", onResize);
 				function onResize(){
 					var mymap = document.getElementById("mapBody");
