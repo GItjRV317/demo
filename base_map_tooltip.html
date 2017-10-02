@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Chloropleth Tooltip Update</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="base_map_tooltip.css">
+		<link href="https://fonts.googleapis.com/css?family=BenchNine|Iceland" rel="stylesheet">
+	</head>
+	<body>
+		<ul class="siteLinks">
+			<li><a href="index.html">Welcome Splash</a></li>
+      <li><a href="clockwork_maps.html">Clockwork Maps</a></li>
+      <li><a href="https://github.com/GItjRV317/demo/blob/master/base_map_tooltip.html">Source Code</a></li>
+		</ul>
+		<h1>US Population from US 2015 Census Data</h1>
+		<div id="mapBody"></div>
+		<div id="legendText"><p>Inc. Population</p></div>
+		<div id="mapLegend"></div>
+		<div id="textContent">
+      <h2>The Base Map (With Tooltips!)</h2>
+			<ul>
+				<li class="prime">Sources:</li>
+				<li><a href="https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json">US States json</a></li>
+				<li><a href="http://population.us/states">US 2015 Population</a></li>
+			</ul>
+      <p>I am fairly pleased to have been able to make this next update so soon. This update to <a href="base_map.html">the base map</a> comes with the quintessential interactive label, the <a href="https://en.wikipedia.org/wiki/Tooltip">tooltip</a>. The guide I ended up following was <a href="http://bl.ocks.org/d3noob/a22c42db65eb00d4e369">this one</a> by d3noob, though mine has considerably more javascript.</p>
+      <p class="final">The reason for all the extra javascript is the CSS <a href="https://www.w3schools.com/css/css_positioning.asp">Positioning</a> property. Though I don't know exactly how the error occured, the function that is writing down the mouse location is adding the <i>top</i> and <i>left</i> position properties of the parent element, <i>#mapBody</i>, to the location of the mouse. In the full size of the screen, that is a +120 to the position of the x, however, at below 1000 pixel width, it shifts to + 20, making any kind of static calculation of position adjustment impossible. This is solved, as was just mentioned, by javascript. I invite you to take a look, the text annotation is quite thorough.</p>
+		</div>
+		<script type="text/javascript">
+			getAllData()
+				.then((data) => {
+					main(data)
+				})
+			function main(data){
+				var myGeoData = data[0];
+				var myAttrData = data[1];
+				console.log("my Geo data:", myGeoData)
+				console.log("my Attr data:", myAttrData)
+				var w = "100%";
+				var h = "100%";
+				var color = d3.scaleQuantize().range(["rgb(255,247,251)", "rgb(236,231,242)", "rgb(208,209,230)", "rgb(166,189,219)", "rgb(116,169,207)", "rgb(54,144,192)", "rgb(5,112,176)", "rgb(4,90,141)", "rgb(2,56,88)"]);
+				var Data = bindGeoData(myAttrData, myGeoData);
+				console.log("my bound Data:", Data)
+        //HERE WE BEGIN THE TOOLTIP METHOD
+        //the first step is defining our variable for the tooltip, which will be a div that will spontaneously create
+        //and destroy itself with a mouseover event
+        var div = d3.select("#mapBody").append("div").attr("class", "tooltip").style("opacity", 0).style("visibility", "hidden");
+				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h);
+				color.domain([
+					d3.min(Data, function(d){return d.properties.population;}),
+					d3.max(Data, function(d){return d.properties.population;})
+				]);
+				var mymap = document.getElementById("mapBody");
+				var bounds = mymap.getBoundingClientRect();
+				render(bounds.width, bounds.height);
+				function render(width, height){
+          //this large number of additional variables is a way of getting around a problem I do not understand the cause of:
+          //the d3 functions to grab mouse position adding the "top" and "left" css properties of the parent element to the
+          //svg, #mapBody, to their calculations of mouse position.
+          //basically, in order, these variables query the element by id, grab the complete style of the element, call the
+          //string values of those properties, and then convert those strings into numbers.
+          //as a note to any who may be wondering: these variables must be inside function render() to iterate again
+          //every time the map is resized.
+          var element = document.getElementById("mapBody");
+          var styleCall = window.getComputedStyle(element);
+          var left = styleCall.getPropertyValue("left");
+          var marginX = parseInt(left);
+          var top = styleCall.getPropertyValue("top");
+          var marginY = parseInt(top);
+					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
+					var path = d3.geoPath().projection(projection);
+					var d =svg.selectAll("path").data(Data);
+          //inside our function to draw the map, we must also place our function for the tooltip. note the "on" portion
+          //of the function and below. the Number().toString() function is necessary to remove the leading 0s from
+          //the population data.
+					d.enter()
+					.append("path")
+					.merge(d)
+					.attr("stroke", "#333")
+					.attr("d", path)
+          .on("mouseover", function(d){
+            div.transition()
+            .duration(200)
+            .style("opacity", 0.9)
+            .style("visibility", "visible");
+            div.html(d.properties.name + "</br>" + Number(d.properties.population).toString())
+            .style("left", (d3.event.pageX - marginX + 15) + "px")
+            .style("top", (d3.event.pageY - marginY + 15) + "px");
+          })
+          .on("mouseout", function(d){
+            div.transition()
+            .duration(200)
+            .style("opacity", 0)
+            .style("visibility", "hidden");
+          })
+					.style("fill", function(d){
+						var value = d.properties.population;
+						console.log("My value:", value);
+						if(value){
+							return color(value);
+							console.log("My color:", color(value));
+						}else{
+							return "#000";
+						}
+						});
+				}
+				window.addEventListener("resize", onResize);
+				function onResize(){
+					var mymap = document.getElementById("mapBody");
+					var bounds = mymap.getBoundingClientRect();
+					render(bounds.width, bounds.height);
+				}
+				var legend = d3.select("#mapLegend").append("svg").attr("width", w).attr("height", h).attr("viewBox", "0 0 300 15");
+				legend.append("linearGradient").attr("id", "legendGradient")
+				.attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%")
+				.selectAll("stop")
+				.data([
+					{offset: "0%", color: "rgb(255,247,251)"},
+					{offset: "12.5%", color: "rgb(236,231,242)"},
+					{offset: "25%", color: "rgb(208,209,230)"},
+					{offset: "37.5%", color: "rgb(166,189,219)"},
+					{offset: "50%", color: "rgb(116,169,207)"},
+					{offset: "62.5%", color: "rgb(54,144,192)"},
+					{offset: "75%", color: "rgb(5,112,176)"},
+					{offset: "87.5", color: "rgb(4,90,141)"},
+					{offset: "100%", color: "rgb(2,56,88)"}
+				])
+				.enter().append("stop")
+				.attr("offset", function(d){return d.offset;})
+				.attr("stop-color", function(d){return d.color;});
+				legend.append("rect").attr("width", w).attr("height", h).attr("fill", "url(#legendGradient)").attr("stroke", "#333");
+				function bindGeoData(ds, geo){
+					ds.map((ds) => {
+						geo.features.map((g) => {
+							var s = g.properties.name;
+							if (s == ds.state){
+								g.properties.population = ds.value;
+							}
+						})
+					})
+					return geo.features;
+				}
+			}
+			function getAllData(){
+				var geoDataLoaded = new Promise((resolve, reject) => {
+					d3.json("us-states.json", (data) => {
+						resolve (data)
+					})
+				})
+				var attrDataLoaded = new Promise((resolve, reject) => {
+					d3.csv("us-state-pop-2015.csv", (data) => {
+						resolve (data)
+					})
+				})
+				return Promise.all([geoDataLoaded, attrDataLoaded])
+			}
+		</script>
+	</body>
+</html>

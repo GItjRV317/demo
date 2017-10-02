@@ -10,6 +10,8 @@
 	<body>
 		<ul class="siteLinks">
 			<li><a href="index.html">Welcome Splash</a></li>
+      <li><a href="clockwork_maps.html">Clockwork Maps</a></li>
+      <li><a href="https://github.com/GItjRV317/demo/blob/master/base_map.html">Source Code</a></li>
 		</ul>
 		<h1>US Population from US 2015 Census Data</h1>
 		<div id="mapBody"></div>
@@ -126,15 +128,14 @@
 					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
 					var path = d3.geoPath().projection(projection);
 					var d =svg.selectAll("path").data(Data);
-					//possibly the most unnecessary part of our function in practical terms, but removing the svg before you redraw it
-					//can prevent cache buildup. just a good coding habit for anything you want to iterate more than once on a page.
-					svg.selectAll("mapBody").remove();
-					//this first instance of code isn't important in the initial draw. it updates the path info for the redraw.
-					//you can experiment with removing the code to get some pretty weird maps on resize.
-					d.attr("d", path);
-					//okay, so here is where we draw the map as per normal.
+					//since we are planning on iterating this multiple times, we have to add the "merge" attribute to our draw order
+					//this will allow the data to update between resizes. try removing the attribute to see what happens if you resize
+					//the window without it. additionally, as we are not updating our dataset, only our width and height, there is no
+					//need to worry about cache clearing. see the Mike Bostock blog "Thinking with Joins" to better understand what
+					//to do if updating your dataset.
 					d.enter()
 					.append("path")
+					.merge(d)
 					.attr("stroke", "#333")
 					.attr("d", path)
 					.style("fill", function(d){

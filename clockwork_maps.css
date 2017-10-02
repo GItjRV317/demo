@@ -6,21 +6,25 @@
 html, body{
   height: 100%;
 }
+a,a:visited{
+  font-weight: bold;
+  text-decoration: none;
+  color: #009bff;
+}
 h1, #mapLegend, #legendText{
   position: absolute;
   left: 400px;
 }
-h2, h3, #textContent ul, #textContent p, #textContent table{
+h2, h3, #textContent p{
   position:relative;
   left: 15px;
 }
-h2, h3{
-  color: #9a2617;
+h2, .h3h3{
+  color: #9a2617 !important;
 }
 h1{
   top: 25px;
   text-decoration: underline;
-  margin-bottom: 15px;
 }
 #mapBody{
   position: absolute;
@@ -53,18 +57,15 @@ h2{
   top: 15px;
   font-size: 20px;
   text-decoration: underline;
+  margin-bottom: 15px;
 }
 ul{
   list-style: none;
   font-size: 14px;
 }
-h3{
+.h3h3{
+  font-family: 'Iceland', cursive;
   font-size: 16px;
-}
-a,a:visited{
-  font-weight: bold;
-  text-decoration: none;
-  color: #009bff;
 }
 a:hover{
   text-decoration: underline;
@@ -73,17 +74,8 @@ a:hover{
   margin-top: 5px;
   max-width: 520px;
 }
-#textContent table{
-  text-align: left;
-  border: 1px solid #333;
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-#textContent td{
-  padding-left: 2px;
-  border-top: 1px solid #333;
-}
 .siteLinks{
+  display: inline-block;
   position: absolute;
   top: 0;
   width: 1000px;
@@ -93,7 +85,6 @@ a:hover{
   border-bottom-right-radius: 12px;
 }
 .siteLinks li{
-  display: inline-block;
   font-size: 17px;
   margin-top: auto;
   margin-bottom: auto;
@@ -103,10 +94,6 @@ a:hover{
   margin-top: 10px;
   font-size: 17px;
   font-weight: bold;
-}
-.borderLeft{
-  border-left: 1px solid #333;
-  font-family: 'Iceland', cursive;
 }
 .final{
   margin-bottom: 10px;

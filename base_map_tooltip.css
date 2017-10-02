@@ -10,12 +10,9 @@ h1, #mapLegend, #legendText{
   position: absolute;
   left: 400px;
 }
-h2, h3, #textContent ul, #textContent p, #textContent table{
+h2, #textContent ul, #textContent p {
   position:relative;
   left: 15px;
-}
-h2, h3{
-  color: #9a2617;
 }
 h1{
   top: 25px;
@@ -52,14 +49,12 @@ h1{
 h2{
   top: 15px;
   font-size: 20px;
+  color: #9a2617;
   text-decoration: underline;
 }
 ul{
   list-style: none;
   font-size: 14px;
-}
-h3{
-  font-size: 16px;
 }
 a,a:visited{
   font-weight: bold;
@@ -72,16 +67,6 @@ a:hover{
 #textContent p{
   margin-top: 5px;
   max-width: 520px;
-}
-#textContent table{
-  text-align: left;
-  border: 1px solid #333;
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-#textContent td{
-  padding-left: 2px;
-  border-top: 1px solid #333;
 }
 .siteLinks{
   position: absolute;
@@ -99,14 +84,24 @@ a:hover{
   margin-bottom: auto;
   margin-left: 2.5%;
 }
+.tooltip{
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 28px;
+  padding: 2px;
+  padding-bottom: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #FFF;
+  border: 1px solid #87ceeb;
+  border-radius: 8px;
+  z-index: 3;
+}
 .prime{
   margin-top: 10px;
   font-size: 17px;
   font-weight: bold;
-}
-.borderLeft{
-  border-left: 1px solid #333;
-  font-family: 'Iceland', cursive;
 }
 .final{
   margin-bottom: 10px;
@@ -145,7 +140,6 @@ a:hover{
   #mapBody{
     width: 500px;
     height: 300px;
-    left: 20px;
   }
   #legendText{
     top: 370px;

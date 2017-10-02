@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Chloropleth Tooltip Update</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="clockwork_maps.css">
+		<link href="https://fonts.googleapis.com/css?family=BenchNine|Iceland" rel="stylesheet">
+	</head>
+	<body>
+		<ul class="siteLinks">
+			<li><a href="index.html">Welcome Splash</a></li>
+		</ul>
+		<h1>Clockwork Maps</h1>
+		<div id="mapBody"></div>
+		<div id="legendText"><p>Inc. Population</p></div>
+		<div id="mapLegend"></div>
+		<div id="textContent">
+      <h2>A d3 blog</h2>
+      <p><b>Welcome!</b> I am a student at Lund University in Sweden, where I'm working on my master's in GIS. This is my journal of learning d3. Each page will display a map where I take on an entirely new project or add a new feature to an existing project. I post general thoughts on the map iteration on the page, and my code is heavily annotated to give better understanding to aspiring d3 devs like myself. If you have no familiarity at all with d3 or javascript, this might not be enough. Start with <a href="https://www.codecademy.com">Codecademy</a> or <a href="http://alignedleft.com/work/d3-book-2e">Interactive Data Visualization for the Web</a>. Without further ado, let's get into the entries!</p>
+			<h3><a class="h3h3" href="base_map.html">The Base Map 2017-09-30</a></h3>
+			<p>This is the first mapping project. In this map, I try to lay down the standards for my own map writing which include asynchronous data parsing and rescalability. Additionally, I run into a serious error parsing .csvs.</p>
+			<h3><a class="h3h3" href="base_map_tooltip.html">Tooltip Update 2017-10-02</a></h3>
+      <p class="final">In this update, I add tooltip functionality to the base map. While most of it is straightforward, I had to learn how to solve a problem with tooltip positioning.</p>
+		</div>
+		<script type="text/javascript">
+			getAllData()
+				.then((data) => {
+					main(data)
+				})
+			function main(data){
+				var myGeoData = data[0];
+				var myAttrData = data[1];
+				console.log("my Geo data:", myGeoData)
+				console.log("my Attr data:", myAttrData)
+				var w = "100%";
+				var h = "100%";
+				var color = d3.scaleQuantize().range(["rgb(255,247,251)", "rgb(236,231,242)", "rgb(208,209,230)", "rgb(166,189,219)", "rgb(116,169,207)", "rgb(54,144,192)", "rgb(5,112,176)", "rgb(4,90,141)", "rgb(2,56,88)"]);
+				var Data = bindGeoData(myAttrData, myGeoData);
+				console.log("my bound Data:", Data)
+				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h);
+				color.domain([
+					d3.min(Data, function(d){return d.properties.population;}),
+					d3.max(Data, function(d){return d.properties.population;})
+				]);
+				var mymap = document.getElementById("mapBody");
+				var bounds = mymap.getBoundingClientRect();
+				render(bounds.width, bounds.height);
+				function render(width, height){
+					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
+					var path = d3.geoPath().projection(projection);
+					var d =svg.selectAll("path").data(Data);
+					d.enter()
+					.append("path")
+					.merge(d)
+					.attr("stroke", "#333")
+					.attr("d", path)
+					.style("fill", function(d){
+						var value = d.properties.population;
+						console.log("My value:", value);
+						if(value){
+							return color(value);
+							console.log("My color:", color(value));
+						}else{
+							return "#000";
+						}
+						});
+				}
+				window.addEventListener("resize", onResize);
+				function onResize(){
+					var mymap = document.getElementById("mapBody");
+					var bounds = mymap.getBoundingClientRect();
+					render(bounds.width, bounds.height);
+				}
+				var legend = d3.select("#mapLegend").append("svg").attr("width", w).attr("height", h).attr("viewBox", "0 0 300 15");
+				legend.append("linearGradient").attr("id", "legendGradient")
+				.attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%")
+				.selectAll("stop")
+				.data([
+					{offset: "0%", color: "rgb(255,247,251)"},
+					{offset: "12.5%", color: "rgb(236,231,242)"},
+					{offset: "25%", color: "rgb(208,209,230)"},
+					{offset: "37.5%", color: "rgb(166,189,219)"},
+					{offset: "50%", color: "rgb(116,169,207)"},
+					{offset: "62.5%", color: "rgb(54,144,192)"},
+					{offset: "75%", color: "rgb(5,112,176)"},
+					{offset: "87.5", color: "rgb(4,90,141)"},
+					{offset: "100%", color: "rgb(2,56,88)"}
+				])
+				.enter().append("stop")
+				.attr("offset", function(d){return d.offset;})
+				.attr("stop-color", function(d){return d.color;});
+				legend.append("rect").attr("width", w).attr("height", h).attr("fill", "url(#legendGradient)").attr("stroke", "#333");
+				function bindGeoData(ds, geo){
+					ds.map((ds) => {
+						geo.features.map((g) => {
+							var s = g.properties.name;
+							if (s == ds.state){
+								g.properties.population = ds.value;
+							}
+						})
+					})
+					return geo.features;
+				}
+			}
+			function getAllData(){
+				var geoDataLoaded = new Promise((resolve, reject) => {
+					d3.json("us-states.json", (data) => {
+						resolve (data)
+					})
+				})
+				var attrDataLoaded = new Promise((resolve, reject) => {
+					d3.csv("us-state-pop-2015.csv", (data) => {
+						resolve (data)
+					})
+				})
+				return Promise.all([geoDataLoaded, attrDataLoaded])
+			}
+		</script>
+	</body>
+</html>
