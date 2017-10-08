@@ -1,0 +1,170 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Mapping Multi-Variable Point Data</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="cities_usa.css">
+		<link href="https://fonts.googleapis.com/css?family=BenchNine|Open+Sans" rel="stylesheet">
+	</head>
+	<body>
+		<ul class="siteLinks">
+			<li><a href="index.html">Welcome Splash</a></li>
+      <li><a href="clockwork_maps.html">Clockwork Maps</a></li>
+      <li><a href="https://github.com/GItjRV317/demo/blob/master/cities_usa.html">Source Code</a></li>
+		</ul>
+		<h1>35 Largest US Cities</h1>
+		<div id="mapBody"></div>
+		<div id="popLegend"></div>
+		<div id="popText"><p>Inc. City Pop &rarr;</p></div>
+		<div id="legendText"><p>Negative &rarr; Positive 2000-13 Pop. Growth</p></div>
+		<div id="mapLegend"></div>
+		<div id="textContent">
+			<h2>Making a Multi-Variable Map</h2>
+			<li class="prime">Sources:</li>
+			<li><a href="https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json">US States .json</a></li>
+			<li><a href="https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json">1000 Largest US Cities</a></li>
+			<p>This map was made with a bit of compromise with the cities data. To begin, if you click the source, you will see that there are 1000 cities on the map, instead of the 35 you see on the city. That was done because of readability. If you'd like to see what all 1000 cities look like in one of the earlier drafts of my map, feast your eyes on <a href="https://imgur.com/EoreOET">this</a>. The second compromise is with time. As this data from 2013, these results are likely out of date at the time of publishing, so please don't take this as an accurate depiction of current conditions. This compromise was made largely due two factors: the convenience of not having to hunt down and compile my own data source, and the fact that I am still only doing this for practice.</p>
+			<p class="final">To make this map work, I needed to learn three things: how to draw a map with just json data, how to draw and plot circles, and the beginnings of multi-variable information "coding". The use of quotes is because as it was originally explained to me by a professor, <i>visual coding</i> was the study and application of how to present information visually in an easily understood way. This definition, to the best of my Googling ability, is shared by no one. Apologies if someone actually knows the proper term. In any event, the former are best explained by looking at my annotated code. The only function I would like to draw attention to in the text is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString">Number.prototype.toLocaleString()</a>, as it helped me very much in making readable tooltips for this map, and will undoubtably help very much in the future.</p>
+		</div>
+		<script type="text/javascript">
+			getAllData()
+				.then((data) => {
+					main(data)
+				})
+			function main(data){
+				var myGeoData = data[0];
+				console.log("my Geo data:", myGeoData)
+				var myPointData = data[1];
+				console.log("my Point data:", myPointData)
+				var w = "100%";
+				var h = "100%";
+				//setting up the scale for our circles. the choice of sqrt is made due to the result of this scale being radius length.
+				//doubling a radius would quadruple the size of a circle.
+				var rScale = d3.scaleSqrt().domain([
+					d3.min(myPointData, function(d){return +d.population;}),
+					d3.max(myPointData, function(d){return +d.population;})
+				])
+				.range([3, 10]);
+				//setting up the color scale for our population growth. elected to use scaleThreshold for more control over how
+				//positive and negative numbers are shown. this is not a perfect solution, but i suppose that will be a matter
+				//for a future project.
+				var cScale = d3.scaleThreshold().domain([-13.5, -5, -1, 8, 16, 24, 32])
+				.range(["rgba(202,0,32, 0.7)", "rgba(244,165,130, 0.7)", "rgba(247,247,247, 0.7)", "rgba(209,229,240, 0.7)", "rgba(146,197,222, 0.7)", "rgba(67,147,195, 0.7)", "rgba(33,102,172, 0.7)"]);
+				//tooltip variable
+				var div = d3.select("#mapBody").append("div").attr("class", "tooltip").style("opacity", 0).style("visibility", "hidden");
+				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h);
+				var mymap = document.getElementById("mapBody");
+				var bounds = mymap.getBoundingClientRect();
+				render(bounds.width, bounds.height);
+				function render(width, height){
+					//as we're using tooltips, we have to make the same request as last time
+					var element = document.getElementById("mapBody");
+          var styleCall = window.getComputedStyle(element);
+          var left = styleCall.getPropertyValue("left");
+          var marginX = parseInt(left);
+          var top = styleCall.getPropertyValue("top");
+          var marginY = parseInt(top);
+					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
+					var path = d3.geoPath().projection(projection);
+					//drawing a map with only a json was actually hard. it's a bit silly, but i've only ever used previously joined data as a
+					//path argument. when i just wanted to use this json, i had to learn to call the feature array specifically for my
+					//coordinate data to work.
+					var d = svg.selectAll("path").data(myGeoData.features);
+					var e = svg.selectAll("circle").data(myPointData);
+					//first layer
+					d.enter()
+					.append("path")
+					.merge(d)
+					.attr("stroke", "#999")
+					.attr("stroke-width", "1.5")
+					.attr("d", path)
+					.style("fill", "#e5e5e5");
+					//start of city plotting. to begin, i'd like to not that d3 draws things by order they're coded. if you would change
+					//the positions of projections d and e, the only visible feature would be the grey map.
+					//so, the method for drawing circles that change their position via size is right here. note the use of the merge
+					//function. again, no need to worry about new data coming into this equation, so no need to purge old results.
+					//other features i'd like to call your attention to would be the stroke width property and the setup of the new tooltip
+					//function. it has two new html features: quoting in html to produce standard text directly, and use of the &nbsp; notation.
+					e.enter()
+					.append("circle")
+					.merge(e)
+					.attr("cx", function(d){return projection([d.longitude, d.latitude])[0];})
+					.attr("cy", function(d){return projection([d.longitude, d.latitude])[1];})
+					.attr("r", function(d){
+						var value = d.population;
+						return rScale(value);
+					})
+					.attr("stroke", "rgba( 0, 0, 0, 0.9)")
+					.attr("stroke-width", "0.7")
+					.on("mouseover", function(d){
+            div.transition()
+            .duration(200)
+            .style("opacity", 0.9)
+            .style("visibility", "visible");
+            div.html(d.city + "," + "&nbsp;" + d.state + "</br>" + "Population:" + "&nbsp;" + Number(d.population).toLocaleString() + "</br>" + "2000-13 Growth:" + "&nbsp;" + d.growth_from_2000_to_2013 + "</br>" + "Rank:" + "&nbsp;" + d.rank)
+            .style("left", (d3.event.pageX - marginX + 15) + "px")
+            .style("top", (d3.event.pageY - marginY + 15) + "px");
+          })
+          .on("mouseout", function(d){
+            div.transition()
+            .duration(200)
+            .style("opacity", 0)
+            .style("visibility", "hidden");
+          })
+					.style("fill", function(d){
+						var value = parseFloat(d.growth_from_2000_to_2013);
+						return cScale(value);
+					})
+				}
+				window.addEventListener("resize", onResize);
+				function onResize(){
+					var mymap = document.getElementById("mapBody");
+					var bounds = mymap.getBoundingClientRect();
+					render(bounds.width, bounds.height);
+				}
+				//color legend, slightly different than how it was done in previous maps.
+				var legend = d3.select("#mapLegend").append("svg").attr("height", h);
+				legend.append("linearGradient").attr("id", "legendGradient")
+				.attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%")
+				.selectAll("stop")
+				.data([
+					{offset: "0%", color: "rgb(202,0,32)"},
+					{offset: "25%", color: "rgb(244,165,130)"},
+					{offset: "50%", color: "rgb(247,247,247)"},
+					{offset: "62.5%", color: "rgb(209,229,240)"},
+					{offset: "75%", color: "rgb(146,197,222)"},
+					{offset: "87.5%", color: "rgb(67,147,195)"},
+					{offset: "100%", color: "rgb(33,102,172)"}
+				])
+				.enter().append("stop")
+				.attr("offset", function(d){return d.offset;})
+				.attr("stop-color", function(d){return d.color;});
+				legend.append("rect").attr("width", w).attr("height", h).attr("fill", "url(#legendGradient)").attr("stroke", "#333");
+				//now we start to set up our population legend. as you can see, it's just a bunch of circles. there is probably
+				//a faster way of coding these, but i have no idea what it might be.
+				var cLegend = d3.select("#popLegend").append("svg").attr("width", w).attr("height", h);
+				cLegend.append("circle").attr("cx", "4").attr("cy", "11").attr("r", "3").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "14").attr("cy", "11").attr("r", "4").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "26").attr("cy", "11").attr("r", "5").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "40").attr("cy", "11").attr("r", "6").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "56").attr("cy", "11").attr("r", "7").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "74").attr("cy", "11").attr("r", "8").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "94").attr("cy", "11").attr("r", "9").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "116").attr("cy", "11").attr("r", "10").attr("stroke", "#000").attr("stroke-width", "0,7").style("fill", "#FFF");
+			}
+			function getAllData(){
+				var geoDataLoaded = new Promise((resolve, reject) => {
+					d3.json("us-states.json", (data) => {
+						resolve (data)
+					})
+				})
+				var pointDataLoaded = new Promise((resolve, reject) => {
+					d3.json("US-cities.json", (data) => {
+						resolve (data)
+					})
+				})
+				return Promise.all([geoDataLoaded, pointDataLoaded])
+			}
+		</script>
+	</body>
+</html>
