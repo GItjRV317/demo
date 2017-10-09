@@ -45,11 +45,16 @@
 					d3.max(myPointData, function(d){return +d.population;})
 				])
 				.range([3, 10]);
+				//setting up ease of use variables for working with scaleLinear
+				var gMin = d3.min(myPointData, function(d){return parseFloat(d.growth_from_2000_to_2013);});
+				var gMax = d3.max(myPointData, function(d){return parseFloat(d.growth_from_2000_to_2013);});
 				//setting up the color scale for our population growth. elected to use scaleThreshold for more control over how
 				//positive and negative numbers are shown. this is not a perfect solution, but i suppose that will be a matter
 				//for a future project.
-				var cScale = d3.scaleThreshold().domain([-13.5, -5, -1, 8, 16, 24, 32])
-				.range(["rgba(202,0,32, 0.7)", "rgba(244,165,130, 0.7)", "rgba(247,247,247, 0.7)", "rgba(209,229,240, 0.7)", "rgba(146,197,222, 0.7)", "rgba(67,147,195, 0.7)", "rgba(33,102,172, 0.7)"]);
+				//after initial commit, found scaleLinear. automatically generated scale that can take more than two breakpoints.
+				//automatically generates colors, too!
+				var cScale = d3.scaleLinear().domain([gMin, gMin/2, 0, gMax/2, gMax])
+				.range(["rgba(202,0,32, 0.7)", "rgba(244,165,130, 0.7)", "rgba(247,247,247, 0.7)", "rgba(146,197,222, 0.7)", "rgba(5,113,176, 0.7)"]);
 				//tooltip variable
 				var div = d3.select("#mapBody").append("div").attr("class", "tooltip").style("opacity", 0).style("visibility", "hidden");
 				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h);
@@ -131,9 +136,7 @@
 					{offset: "0%", color: "rgb(202,0,32)"},
 					{offset: "25%", color: "rgb(244,165,130)"},
 					{offset: "50%", color: "rgb(247,247,247)"},
-					{offset: "62.5%", color: "rgb(209,229,240)"},
 					{offset: "75%", color: "rgb(146,197,222)"},
-					{offset: "87.5%", color: "rgb(67,147,195)"},
 					{offset: "100%", color: "rgb(33,102,172)"}
 				])
 				.enter().append("stop")
