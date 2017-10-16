@@ -1,0 +1,189 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Introducing Zoom</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="cities_zoom.css">
+		<link href="https://fonts.googleapis.com/css?family=BenchNine|Open+Sans|Indie+Flower" rel="stylesheet">
+	</head>
+	<body>
+		<ul class="siteLinks">
+			<li><a href="index.html">Welcome Splash</a></li>
+      <li><a href="clockwork_maps.html">Clockwork Maps</a></li>
+      <li><a href="https://github.com/GItjRV317/demo/blob/master/cities_zoom.html">Source Code</a></li>
+		</ul>
+		<h1>1000 Largest US Cities</h1>
+		<h2 id="zoom">&nbsp; &nbsp;Zoom and Pan Here! </br> &swarr;</h2>
+		<div id="mapBody"></div>
+		<div id="popLegend"></div>
+		<div id="popText"><p>Inc. City Pop &rarr;</p></div>
+		<div id="growthDefault"></div>
+		<div id="defaultText">&nbsp; &darr; No growth data</div>
+		<div id="legendText"><p>Negative &rarr; Positive 2000-13 Pop. Growth</p></div>
+		<div id="mapLegend"></div>
+		<div id="textContent">
+			<h2>Introducing Zoom!</h2>
+			<li class="prime">Sources:</li>
+			<li><a href="https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json">US States .json</a></li>
+			<li><a href="https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json">1000 Largest US Cities</a></li>
+			<p>The main methodology for this project is highlighted by annotation of the source code. The goal for this project was to introduce basic zoom functionality into the map, and my methods are somewhat based on <a href="https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d774b69a2">this example</a>, though I tried to explain my methods better. The main d3 function powering this map is, unsurprisingly, <a href="https://github.com/d3/d3-zoom/blob/master/README.md">d3zoom</a>. I'd recommend reading the documentation after you get some time to practice with the function.</p>
+			<p>There were two difficulties I faced after figuring out the d3zoom minimum functionality: proper scaling of the color scale and adding a default color for circles that were lacking data in the growth field. After many attempts at using both <a href="https://github.com/d3/d3-scale#quantize-scales">scaleQuantize</a> and <a href="https://github.com/d3/d3-scale#quantile-scales">scaleQuantile</a> for more accurate scales, I realized I was getting the same psuedo boolean output as I was in my efforts for <a href="base_map.html">the base map</a>. I'm not sure leading 0s were the issue this time, as I encountered this problem only with passing the positive half of my growth data. In any event, I stuck to using scaleLinear for this dataset. While the current results may not be as accurately divided as an automatic scale could output, the divisions are a much better visual aid than that given by a broken scale.</p>
+			<p class="final">My final difficulty was in assigning values to the empty fields present in the dataset. As someone relatively new to JS coding, I encountered my first problems with <a href="https://developer.mozilla.org/en-US/docs/Glossary/Falsy">Falsy</a> variables. In this dataset, there are both values of "0.0" and fields that aren't filled in (as I'm not privy to the dataset's creation, I am unaware as to the reason). This creates a bit of confusion with the script, which resulted in one of two outcomes through many attempts. The first result was correctly assigning the default color to the cities missing that data, but also assign that same color to cities whose value for the same field was "0.0". The second result was that I would correctly differentiate the values of 0.0 from empty fields... but then my color scale would pass a color argument of <a href="https://www.w3schools.com/cssref/css_colors_legal.asp">rgba(0,0,0,0.7)</a> (which, if you'd like to check is nowhere in my code) to the cities with a missing field. The function that saved my color scale (or perhaps saved myself from going back and manually editing the dataset) was <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isNaN">isNaN</a>. The fill function for my circle argument is given brief annotation this time around, go check it out!</p>
+		</div>
+		<script type="text/javascript">
+			getAllData()
+				.then((data) => {
+					main(data)
+				})
+			function main(data){
+				var myGeoData = data[0];
+				console.log("my Geo data:", myGeoData)
+				var myPointData = data[1];
+				console.log("my Point data:", myPointData)
+				var w = "100%";
+				var h = "100%";
+				var rScale = d3.scaleSqrt().domain([
+					d3.min(myPointData, function(d){return +d.population;}),
+					d3.max(myPointData, function(d){return +d.population;})
+				])
+				.range([0.5, 10]);
+				var gMin = d3.min(myPointData, function(d){return parseFloat(d.growth_from_2000_to_2013);});
+				var gMax = d3.max(myPointData, function(d){return parseFloat(d.growth_from_2000_to_2013);});
+				//due to the huge increase in city number, an expansion of the scale is required. also due to the now top growth value being somewhere above 2500,
+				//some adjustment to scale was required.
+				var cScale1 = d3.scaleQuantize().domain([gMin, 0]).range(["rgba(103,0,31, 0.7)", "rgba(178,24,43, 0.7)", "rgba(214,96,77, 0.7)", "rgba(244,165,130, 0.7)", "rgba(253,219,199, 0.7)", "rgba(247,247,247, 0.7)"]);
+				var cScale2 = d3.scaleQuantile().domain([0, gMax]).range(["rgba(247,247,247, 0.7)", "rgba(209,229,240, 0.7)", "rgba(146,197,222, 0.7)", "rgba(67,147,195, 0.7)", "rgba(33,102,172, 0.7)", "rgba(5,48,97, 0.7)"]);
+				var cScale = d3.scaleLinear().domain([gMin, gMin/2, gMin/3, gMin/4, gMin/5, 0, gMax/100, gMax/75, gMax/50, gMax/25, gMax])
+				.range(["rgba(103,0,31, 0.7)", "rgba(178,24,43, 0.7)", "rgba(214,96,77, 0.7)", "rgba(244,165,130, 0.7)", "rgba(253,219,199, 0.7)", "rgba(247,247,247, 0.7)", "rgba(209,229,240, 0.7)", "rgba(146,197,222, 0.7)", "rgba(67,147,195, 0.7)", "rgba(33,102,172, 0.7)", "rgba(5,48,97, 0.7)"]);
+				var div = d3.select("#mapBody").append("div").attr("class", "tooltip").style("opacity", 0).style("visibility", "hidden");
+				var svg = d3.select("#mapBody").append("svg").attr("width", w).attr("height", h);
+				var mymap = document.getElementById("mapBody");
+				var bounds = mymap.getBoundingClientRect();
+				render(bounds.width, bounds.height);
+				function render(width, height){
+					var element = document.getElementById("mapBody");
+          var styleCall = window.getComputedStyle(element);
+          var left = styleCall.getPropertyValue("left");
+          var marginX = parseInt(left);
+          var top = styleCall.getPropertyValue("top");
+          var marginY = parseInt(top);
+					var projection = d3.geoAlbersUsa().fitExtent([[10, 10], [width,height]], myGeoData);
+					var path = d3.geoPath().projection(projection);
+          //ONE OF THE REQUIREMENTS FOR ZOOM FUNCTIONALITY. in order, we have: zoom variable, zoom extent (min to max zoom), zoom listener.
+					//of small, additional note in case it wasn't self evident: the first arguement in scaleExtent determines the minimum zoom, while the second
+					//determines the maximum. if there is a minimum of 0, zooming out can happen on an infinite scale.
+          var zoom = d3.zoom().scaleExtent([1, 16]).on("zoom", zoomed);
+					//ONE OF THE REQUIREMENTS FOR ZOOM FUNCTIONALITY. kind of... in my example, i am projecting both a path and circle projection to my visualization.
+					//to make this work, i need to have a base element i can call for my zoom function below that i can then apply to my circle and path.
+					//if i only had one projection, i wouldn't have to worry about this. on the other hand, this method will work for 1-n projections.
+					var g = svg.append("g");
+					var d = g.selectAll("path").data(myGeoData.features);
+					var e = g.selectAll("circle").data(myPointData);
+					//method for removing past elements on resize. this isn't really necessary until you get zoomable maps, but see what happens if you remove it!
+					//the g > * removes all elements within the scope of our g element.
+					d3.selectAll("g > *").remove();
+          svg.call(zoom);
+					//US map. attaching a class attribute for easier styling. stroke-width has to stay here to generate attribute styling which overrides
+					//the stroke-width styling of the zoom function.
+					d.enter()
+					.append("path")
+					.merge(d)
+					.attr("stroke-width", "1.5")
+					.attr("class", "baseMap")
+					.attr("d", path);
+					//US cities. mostly the same as last time, but stroke-width is now being handled by the zoom function.
+					e.enter()
+					.append("circle")
+					.merge(e)
+					.attr("cx", function(d){return projection([d.longitude, d.latitude])[0];})
+					.attr("cy", function(d){return projection([d.longitude, d.latitude])[1];})
+					.attr("r", function(d){
+						var value = d.population;
+						return rScale(value);
+					})
+					.attr("stroke", "rgba( 0, 0, 0, 0.9)")
+					.on("mouseover", function(d){
+            div.transition()
+            .duration(200)
+            .style("opacity", 0.9)
+            .style("visibility", "visible");
+            div.html(d.city + "," + "&nbsp;" + d.state + "</br>" + "Population:" + "&nbsp;" + Number(d.population).toLocaleString() + "</br>" + "2000-13 Growth:" + "&nbsp;" + d.growth_from_2000_to_2013 + "</br>" + "Rank:" + "&nbsp;" + d.rank)
+            .style("left", (d3.event.pageX - marginX + 15) + "px")
+            .style("top", (d3.event.pageY - marginY + 15) + "px");
+          })
+          .on("mouseout", function(d){
+            div.transition()
+            .duration(200)
+            .style("opacity", 0)
+            .style("visibility", "hidden");
+          })
+					.style("fill", function(d){
+						var value = parseFloat(d.growth_from_2000_to_2013);
+						if(isNaN(value)){//this method is important to remember if you have blank fields. conditioning !== NaN will then actually pass a color arguement for the NaN variable... just not one that you coded.
+							return "rgba(250, 210, 1, 0.7)";
+						}
+						return cScale(value);
+					})
+          //ONE OF THE REQUIREMENTS FOR ZOOM FUNCTIONALITY. finally, we have our zoom function, also capable of styling our elements on the fly
+					//the first line styles the stroke-width based on the variable "k", which is our zoom count. the second line transforms our map during
+					//the process of zoom.
+          function zoomed(){
+            g.style("stroke-width", 0.35 + (0.0025 * d3.event.transform.k) + "px");
+            g.attr("transform", d3.event.transform);
+          }
+				}
+				window.addEventListener("resize", onResize);
+				function onResize(){
+					var mymap = document.getElementById("mapBody");
+					var bounds = mymap.getBoundingClientRect();
+					render(bounds.width, bounds.height);
+				}
+				var legend = d3.select("#mapLegend").append("svg").attr("height", h);
+				legend.append("linearGradient").attr("id", "legendGradient")
+				.attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%")
+				.selectAll("stop")
+				.data([
+					{offset: "0%", color: "rgb(103,0,31)"},
+					{offset: "10%", color: "rgb(178,24,43)"},
+					{offset: "20%", color: "rgb(214,96,77)"},
+					{offset: "30%", color: "rgb(244,165,130)"},
+					{offset: "40%", color: "rgb(253,219,199)"},
+					{offset: "50%", color: "rgb(247,247,247)"},
+					{offset: "60%", color: "rgb(209,229,240)"},
+					{offset: "70%", color: "rgb(146,197,222)"},
+					{offset: "80%", color: "rgb(67,147,195)"},
+					{offset: "90%", color: "rgb(33,102,172)"},
+					{offset: "100%", color: "rgb(5,48,97)"}
+				])
+				.enter().append("stop")
+				.attr("offset", function(d){return d.offset;})
+				.attr("stop-color", function(d){return d.color;});
+				legend.append("rect").attr("width", w).attr("height", h).attr("fill", "url(#legendGradient)").attr("stroke", "#333");
+				var cLegend = d3.select("#popLegend").append("svg").attr("width", w).attr("height", h);
+				cLegend.append("circle").attr("cx", "4").attr("cy", "11").attr("r", "3").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "14").attr("cy", "11").attr("r", "4").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "26").attr("cy", "11").attr("r", "5").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "40").attr("cy", "11").attr("r", "6").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "56").attr("cy", "11").attr("r", "7").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "74").attr("cy", "11").attr("r", "8").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "94").attr("cy", "11").attr("r", "9").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				cLegend.append("circle").attr("cx", "116").attr("cy", "11").attr("r", "10").attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "#FFF");
+				//legend element for no data in the growth field
+				d3.select("#growthDefault").append("svg").attr("width", w).attr("height", h).append("circle").attr("cx", 11).attr("cy", 11).attr("r", 10).attr("stroke", "#000").attr("stroke-width", "0.7").style("fill", "rgb(250, 210, 1)");
+			}
+			function getAllData(){
+				var geoDataLoaded = new Promise((resolve, reject) => {
+					d3.json("us-states.json", (data) => {
+						resolve (data)
+					})
+				})
+				var pointDataLoaded = new Promise((resolve, reject) => {
+					d3.json("US-cities-2013.json", (data) => {
+						resolve (data)
+					})
+				})
+				return Promise.all([geoDataLoaded, pointDataLoaded])
+			}
+		</script>
+	</body>
+</html>
